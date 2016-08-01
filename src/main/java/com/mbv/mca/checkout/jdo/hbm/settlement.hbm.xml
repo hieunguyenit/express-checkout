@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.mbv.mca.checkout.core">
+	<class lazy="false" name="Settlement" table="settlement">
+	
+		<id column="id" name="id" type="long">
+			<generator class="identity" />
+		</id>
+		
+		<property	name="checkoutId"
+					column="checkout_id"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="xtranId"
+					column="xtran_id"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="amount"
+					column="amount"
+					insert="true"
+					not-null="true"
+					type="long"
+					update="true" />
+		
+		<property	name="done"
+					column="done"
+					insert="true"
+					not-null="true"
+					type="boolean"
+					update="true" />
+		
+		<property	name="createdAt"
+					column="created_at"
+					insert="true"
+					not-null="true"
+					type="java.util.Date"
+					update="true" />
+		
+		<property	name="updatedAt"
+					column="updated_at"
+					insert="true"
+					type="java.util.Date"
+					update="true" />	
+		
+	</class>
+</hibernate-mapping>

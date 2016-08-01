@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.mbv.mca.checkout.core">
+	<class lazy="false" name="CheckoutRequest" table="checkout">
+	
+		<id column="id" name="id" type="long">
+			<generator class="identity" />
+		</id>
+		
+		<property	name="checkoutId"
+					column="checkout_id"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="merchantId"
+					column="merchant_id"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="method"
+					column="method"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+											
+		<property	name="returnUrl"
+					column="return_url"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="cancelUrl"
+					column="cancel_url"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />
+					
+		<property	name="status"
+					column="status"
+					insert="true"
+					not-null="true"
+					type="string"
+					update="true" />		
+		
+		<property	name="merchantString"
+					column="merchant_info"
+					insert="true"
+					type="string"
+					update="true" />
+					
+		<property	name="customerString"
+					column="customer_info"
+					insert="true"
+					type="string"
+					update="true" />
+					
+		<property	name="invoiceString"
+					column="invoice_info"
+					insert="true"
+					type="string"
+					update="true" />
+					
+		<property	name="transactionString"
+					column="transaction_info"
+					insert="true"
+					type="string"
+					update="true" />
+		
+		<property	name="createdAt"
+					column="created_at"
+					insert="true"
+					not-null="true"
+					type="java.util.Date"
+					update="true" />
+		
+		<property	name="updatedAt"
+					column="updated_at"
+					insert="true"
+					type="java.util.Date"
+					update="true" />	
+		
+	</class>
+</hibernate-mapping>

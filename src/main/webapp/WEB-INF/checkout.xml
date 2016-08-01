@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<context:annotation-config />
+
+	<context:component-scan base-package="com.mbv.mca.checkout.web.handler, com.mbv.mca.checkout.task" />
+	
+	<import resource="checkout-jdo.xml" />
+	
+	<import resource="merchant-info.xml" />
+	
+	<!-- Checkout Handler Map -->
+	<bean id="checkoutHandlerMap" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry key="setcheckout" 		value-ref="setCheckoutHandler" />
+				<entry key="getcheckoutdetail"	value-ref="getCheckoutDetailHandler" />
+				<entry key="docheckoutpayment"	value-ref="doCheckoutPaymentHandler" />
+				<entry key="refundcheckout"		value-ref="refundCheckoutHandler" />
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<!-- Scheduled Executor -->
+	<bean id="scheduledExecutor" class="java.util.concurrent.ScheduledThreadPoolExecutor"
+		destroy-method="shutdownNow">
+		<constructor-arg value="${thread.pool.size}" />
+	</bean>
+       
+    <!-- Sequential Tasks -->
+    <bean class="com.mbv.mca.checkout.task.SequentialTask">
+		<property name="autoSubmit" value="true" />
+		<property name="repeative" value="true" />
+		<property name="tasks">
+			<list>
+				<bean id="settlementTask" class="com.mbv.mca.checkout.task.SettlementTask" />
+			</list>
+		</property>
+	</bean> 
+	
+	<!-- Transaction manager -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="hibernateSessionFactory" />
+	</bean>
+	
+	<!-- Aspect for task, manager-->
+	<aop:config>
+		<aop:pointcut id="txTaskMethods"
+			expression="execution(* com.mbv.mca.checkout.task.XTask.execute())" />
+
+		<aop:advisor advice-ref="txTaskAdvice" pointcut-ref="txTaskMethods" />
+	</aop:config>
+	
+	<!-- Aop Advisors -->
+	<tx:advice id="txTaskAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="execute" rollback-for="Throwable"
+				propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	 
+ </beans>

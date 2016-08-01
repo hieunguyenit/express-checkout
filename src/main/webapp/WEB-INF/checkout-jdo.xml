@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:sec="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<import resource="propertyConfiguer.xml"/>
+
+	<bean id="sqlDataSource" destroy-method="close"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${database.driver.class}" />
+		<property name="url"
+			value="${database.driver.scheme}://${database.host.name}:${database.host.port}/${database.scheme.name}?${database.params.queryString}" />
+		<property name="username" value="${database.authen.username}" />
+		<property name="password" value="${database.authen.password}" />
+		<property name="initialSize" value="${database.pool.initSize}" />
+		<property name="maxIdle" value="${database.pool.maxIdle}" />
+		<property name="maxActive" value="${database.pool.maxActive}" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true" />
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+		<property name="targetDataSource">
+			<ref local="sqlDataSource" />
+		</property>
+	</bean>
+
+	<bean id="hibernateSessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mappingLocations">
+			<value>classpath*:com/mbv/mca/checkout/jdo/hbm/*.hbm.xml</value>
+		</property>
+		<property name="hibernateProperties">
+			<bean
+				class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="location" value="/WEB-INF/hibernate.properties" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Template for DAOs -->
+	<bean id="templateHibernateDAO" lazy-init="true">
+		<property name="sessionFactory">
+			<ref local="hibernateSessionFactory" />
+		</property>
+	</bean>
+
+	<!-- Request DAO -->
+	<bean id="checkoutDAO" parent="templateHibernateDAO"
+		class="com.mbv.mca.checkout.jdo.CheckoutRequestDaoImpl">
+	</bean>
+	
+	<!-- Settlement DAO -->
+	<bean id="settlementDAO" parent="templateHibernateDAO"
+		class="com.mbv.mca.checkout.jdo.SettlementDaoImpl">
+	</bean>
+
+
+</beans>

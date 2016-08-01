@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+        ">
+
+	<context:annotation-config />
+
+	<context:component-scan base-package="com.mbv.mca.checkout.service" />
+
+	<import resource="propertyConfiguer.xml"/>
+
+	<bean id="httpConnectionManager"
+		class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"
+		destroy-method="shutdown">
+		<property name="params">
+			<bean
+				class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
+				<property name="maxTotalConnections" value="1000"></property>
+				<property name="defaultMaxConnectionsPerHost" value="1000"></property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- MCA Messaging -->
+	<bean id="mcaMessagingClient" class="com.mbv.mca.checkout.service.McaMessagingClient"
+		scope="prototype">
+		<constructor-arg>
+			<value>${mca-messaging.conn.url}</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>${mca-messaging.conn.timeout}</value>
+		</constructor-arg>
+		<property name="httpConnectionManager" ref="httpConnectionManager"></property>
+	</bean>
+
+	<bean id="mcaMessagingPool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="mcaMessagingClient" />
+		<property name="initialInstances" value="${mca-messaging.pool.init}" />
+		<property name="maximumInstances" value="${mca-messaging.pool.max}" />
+	</bean>
+
+	<!-- MCA User -->
+	<bean id="mcaCoreClient" class="com.mbv.mca.checkout.service.McaCoreClient"
+		scope="prototype">
+		<constructor-arg>
+			<value>${mca-core.conn.url}</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>${mca-core.conn.timeout}</value>
+		</constructor-arg>
+		<property name="httpConnectionManager" ref="httpConnectionManager"></property>
+	</bean>
+
+	<bean id="mcaCorePool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="mcaCoreClient" />
+		<property name="initialInstances" value="${mca-core.pool.init}" />
+		<property name="maximumInstances" value="${mca-core.pool.max}" />
+	</bean>
+
+	<!-- Account Session -->
+	<bean id="sessionService" class="com.mbv.account.soap.session.SessionServiceClient"
+		scope="prototype">
+		<constructor-arg value="${session.conn.url}" />
+		<constructor-arg value="${session.conn.timeout}" />
+	</bean>
+
+	<bean id="sessionPool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="sessionService" />
+		<property name="initialInstances" value="${session.pool.init}" />
+		<property name="maximumInstances" value="${session.pool.max}" />
+	</bean>
+
+	<!-- Account MbvId -->
+	<bean id="mbvidService" class="com.mbv.account.soap.mbvid.MbvIdServiceClient"
+		scope="prototype">
+		<constructor-arg value="${mbvid.conn.url}" />
+		<constructor-arg value="${mbvid.conn.timeout}" />
+	</bean>
+
+	<bean id="mbvidPool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="mbvidService" />
+		<property name="initialInstances" value="${mbvid.pool.init}" />
+		<property name="maximumInstances" value="${mbvid.pool.max}" />
+	</bean>
+
+	<!-- XAcct -->
+	<bean id="xacctService" class="com.mbv.xacct.ws.client.XAcctClient"
+		scope="prototype">
+		<constructor-arg>
+			<value>${xacct.conn.url}</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>${xacct.conn.timeout}</value>
+		</constructor-arg>
+		<property name="httpConnectionManager" ref="httpConnectionManager"></property>
+	</bean>
+
+	<bean id="xacctPool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="xacctService" />
+		<property name="initialInstances" value="${xacct.pool.init}" />
+		<property name="maximumInstances" value="${xacct.pool.max}" />
+	</bean>
+
+	<!-- MFS Service -->
+	<bean id="mfsService" class="com.mbv.mfs.service.client.MfsServiceClient" scope="prototype">
+		<constructor-arg value="${mfs.conn.url}" />
+		<constructor-arg value="${mfs.conn.timeout}" />
+		<property name="httpConnectionManager" ref="httpConnectionManager"></property>
+	</bean>
+
+	<bean id="mfsServicePool" class="com.mbv.services.ServicePool">
+		<property name="beanId" value="mfsService" />
+		<property name="initialInstances" value="${mfs.pool.init}" />
+		<property name="maximumInstances" value="${mfs.pool.max}" />
+	</bean>
+
+	<!-- Memcached -->
+	<bean id="memcachedClient" class="net.spy.memcached.spring.MemcachedClientFactoryBean">
+		<property name="servers" value="${memcached_host}" />
+		<property name="protocol" value="BINARY" />
+	</bean>
+
+</beans>

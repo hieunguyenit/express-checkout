@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+	 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+	<context:annotation-config />
+
+	<context:component-scan base-package="com.mbv.mca.checkout.web.session" />
+
+	<!-- Spring security -->
+
+	<bean id="allowedLoginDomains" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<value>mobivi.vn</value>
+				<value>google.com</value>
+				<value>yahoo.com</value>
+				<value>facebook.com</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="userExceptionTranslationFilter" class="com.mbv.mca.checkout.web.ExceptionTranslationFilter">
+		<property name="exceptionHandlers">
+			<map>
+				<entry key="com.mbv.mca.checkout.web.session.SessionException"
+					value-ref="sessionLoginExceptionHandler" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="serviceExceptionTranslationFilter" class="com.mbv.mca.checkout.web.ExceptionTranslationFilter">
+		<property name="exceptionHandlers">
+			<map>
+				<entry key="java.lang.Throwable">
+					<bean class="com.mbv.mca.checkout.service.ServiceExceptionHandler" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+		<security:filter-chain-map path-type="ant">
+			<security:filter-chain pattern="/web/login**"
+				filters="userExceptionTranslationFilter, ssoSessionFilter, mcaUserFilter" />
+		</security:filter-chain-map>
+	</bean>
+</beans>

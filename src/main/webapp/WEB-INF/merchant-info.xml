@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<!-- Real Merchants -->
+	<bean id="airlineMerchant" class="com.mbv.mca.checkout.core.Merchant"
+		p:username="${airline.username}"
+		p:password="${airline.password}"
+		p:accountId="${airline.accountId}"
+		p:discountRate="${airline.discountRate}"
+		p:serviceFeeRate="${airline.serviceFeeRate}" />
+
+	<bean id="hotelMerchant" class="com.mbv.mca.checkout.core.Merchant"
+		p:username="${hotel.username}"
+		p:password="${hotel.password}"
+		p:accountId="${hotel.accountId}" 
+		p:discountRate="${hotel.discountRate}"
+		p:serviceFeeRate="${hotel.serviceFeeRate}" />
+		
+	<!-- Test Merchants -->
+	<bean id="testDiscountMerchant" class="com.mbv.mca.checkout.core.Merchant"
+		p:username="nds-test-surcharge"
+		p:password="1234567890"
+		p:accountId="3109020200"
+		p:discountRate="50"
+		p:serviceFeeRate="0" />
+		
+	<bean id="testSurchargeMerchant" class="com.mbv.mca.checkout.core.Merchant"
+		p:username="nds-test-discount"
+		p:password="1234567890"
+		p:accountId="3109020200" 
+		p:discountRate="0"
+		p:serviceFeeRate="35" />
+
+	<!-- Merchant Map -->
+	<bean id="merchantMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!-- Real Merchants -->
+				<entry key="nds-airline" 	value-ref="airlineMerchant" />
+				<entry key="nds-hotel" 		value-ref="hotelMerchant" />
+				
+				<!-- Test Merchants -->
+				<entry key="nds-test-discount" 		value-ref="testDiscountMerchant" />
+				<entry key="nds-test-surcharge" 	value-ref="testSurchargeMerchant" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<!-- Installment Type Map -->
+	<bean id="installmentMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="tra_gop_3m" 	value="${installment.3m}" />
+				<entry key="tra_gop_6m" 	value="${installment.6m}" />
+			</map>
+		</constructor-arg>
+	</bean>
+	
+
+</beans>
